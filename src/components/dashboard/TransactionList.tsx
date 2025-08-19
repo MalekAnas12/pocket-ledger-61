@@ -69,22 +69,19 @@ export const TransactionList = ({ limit }: TransactionListProps) => {
 
       if (error) throw error;
 
-      setTransactions(data.map(t => ({
-        id: t.id,
-        amount: Number(t.amount),
-        type: t.type as 'income' | 'expense',
-        description: t.description || '',
-        date: t.date,
-        category: t.categories,
-        account: t.accounts,
-      })));
-    } catch (error) {
-      console.error('Error loading transactions:', error);
-    } finally {
-      setLoading(false);
-    }
-  };
-
+      setTransactions((data as any[]).map((t: any) => {
+        const category = Array.isArray(t.categories) ? t.categories[0] : t.categories;
+        const account = Array.isArray(t.accounts) ? t.accounts[0] : t.accounts;
+        return {
+          id: t.id,
+          amount: Number(t.amount),
+          type: t.type as 'income' | 'expense',
+          description: t.description || '',
+          date: t.date,
+          category: category ? { name: category.name, color: category.color, icon: category.icon } : null,
+          account: account ? { name: account.name } : { name: '' },
+        } as Transaction;
+      }));
   if (loading) {
     return (
       <Card>

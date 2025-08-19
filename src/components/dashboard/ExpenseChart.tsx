@@ -58,9 +58,10 @@ export const ExpenseChart = () => {
       // Group expenses by category
       const categoryMap = new Map<string, { amount: number; color: string }>();
 
-      data.forEach((transaction) => {
-        const categoryName = transaction.categories?.name || 'Uncategorized';
-        const categoryColor = transaction.categories?.color || '#6b7280';
+      data.forEach((transaction: any) => {
+        const cat = Array.isArray(transaction.categories) ? transaction.categories[0] : transaction.categories;
+        const categoryName = cat?.name || 'Uncategorized';
+        const categoryColor = cat?.color || '#6b7280';
         const amount = Number(transaction.amount);
 
         if (categoryMap.has(categoryName)) {
