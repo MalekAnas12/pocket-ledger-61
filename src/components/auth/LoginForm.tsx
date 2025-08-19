@@ -195,6 +195,13 @@ export const LoginForm = () => {
             </div>
           </CardContent>
         </Card>
+        
+        {/* Attribution */}
+        <div className="text-center">
+          <p className="text-xs text-muted-foreground">
+            Created by AnasMalek
+          </p>
+        </div>
       </div>
     </div>
   );
