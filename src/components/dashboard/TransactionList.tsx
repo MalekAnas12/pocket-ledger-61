@@ -82,6 +82,13 @@ export const TransactionList = ({ limit }: TransactionListProps) => {
           account: account ? { name: account.name } : { name: '' },
         } as Transaction;
       }));
+    } catch (error) {
+      console.error('Error loading transactions:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   if (loading) {
     return (
       <Card>
