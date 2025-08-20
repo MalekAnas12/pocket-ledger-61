@@ -120,7 +120,7 @@ export const AccountsOverview = () => {
         </CardHeader>
         <CardContent>
           <div className="text-3xl font-bold text-primary">
-            ${totalBalance.toLocaleString()}
+            ₹{totalBalance.toLocaleString()}
           </div>
           <p className="text-sm text-muted-foreground mt-1">
             Across {accounts.filter(a => a.is_active).length} active accounts
@@ -155,7 +155,7 @@ export const AccountsOverview = () => {
                 </div>
                 <div className="text-right">
                   <div className="text-2xl font-bold">
-                    ${account.balance.toLocaleString()}
+                    ₹{account.balance.toLocaleString()}
                   </div>
                   <Button variant="ghost" size="sm" className="mt-1">
                     <Edit className="h-4 w-4 mr-1" />

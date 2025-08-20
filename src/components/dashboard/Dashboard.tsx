@@ -21,6 +21,8 @@ import { AddTransactionDialog } from './AddTransactionDialog';
 import { AccountsOverview } from './AccountsOverview';
 import { ExpenseChart } from './ExpenseChart';
 import { MonthlyTrends } from './MonthlyTrends';
+import BankStatementImport from './BankStatementImport';
+import ExcelExport from './ExcelExport';
 
 interface DashboardStats {
   totalBalance: number;
@@ -152,7 +154,7 @@ export const Dashboard = () => {
             </CardHeader>
             <CardContent>
               <div className="text-2xl font-bold">
-                ${loading ? '---' : stats.totalBalance.toLocaleString()}
+                ₹{loading ? '---' : stats.totalBalance.toLocaleString()}
               </div>
             </CardContent>
           </Card>
@@ -166,7 +168,7 @@ export const Dashboard = () => {
             </CardHeader>
             <CardContent>
               <div className="text-2xl font-bold text-success">
-                +${loading ? '---' : stats.monthlyIncome.toLocaleString()}
+                +₹{loading ? '---' : stats.monthlyIncome.toLocaleString()}
               </div>
             </CardContent>
           </Card>
@@ -180,7 +182,7 @@ export const Dashboard = () => {
             </CardHeader>
             <CardContent>
               <div className="text-2xl font-bold text-destructive">
-                -${loading ? '---' : stats.monthlyExpenses.toLocaleString()}
+                -₹{loading ? '---' : stats.monthlyExpenses.toLocaleString()}
               </div>
             </CardContent>
           </Card>
@@ -194,7 +196,7 @@ export const Dashboard = () => {
             </CardHeader>
             <CardContent>
               <div className={`text-2xl font-bold ${netIncome >= 0 ? 'text-success' : 'text-warning'}`}>
-                {netIncome >= 0 ? '+' : ''}${loading ? '---' : netIncome.toLocaleString()}
+                {netIncome >= 0 ? '+' : ''}₹{loading ? '---' : netIncome.toLocaleString()}
               </div>
             </CardContent>
           </Card>
@@ -202,7 +204,7 @@ export const Dashboard = () => {
 
         {/* Main Content Tabs */}
         <Tabs defaultValue="overview" className="space-y-6">
-          <TabsList className="grid w-full lg:w-fit grid-cols-4">
+          <TabsList className="grid w-full lg:w-fit grid-cols-5">
             <TabsTrigger value="overview" className="flex items-center space-x-2">
               <BarChart3 className="h-4 w-4" />
               <span className="hidden sm:inline">Overview</span>
@@ -218,6 +220,10 @@ export const Dashboard = () => {
             <TabsTrigger value="analytics" className="flex items-center space-x-2">
               <PieChart className="h-4 w-4" />
               <span className="hidden sm:inline">Analytics</span>
+            </TabsTrigger>
+            <TabsTrigger value="tools" className="flex items-center space-x-2">
+              <Plus className="h-4 w-4" />
+              <span className="hidden sm:inline">Tools</span>
             </TabsTrigger>
           </TabsList>
 
@@ -241,6 +247,13 @@ export const Dashboard = () => {
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
               <ExpenseChart />
               <MonthlyTrends />
+            </div>
+          </TabsContent>
+
+          <TabsContent value="tools" className="space-y-6">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              <BankStatementImport onImportComplete={loadDashboardData} />
+              <ExcelExport />
             </div>
           </TabsContent>
         </Tabs>

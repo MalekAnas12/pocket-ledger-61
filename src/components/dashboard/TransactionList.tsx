@@ -199,7 +199,7 @@ export const TransactionList = ({ limit }: TransactionListProps) => {
                 transaction.type === 'income' ? 'text-success' : 'text-destructive'
               }`}
             >
-              {transaction.type === 'income' ? '+' : '-'}$
+              {transaction.type === 'income' ? '+' : '-'}₹
               {transaction.amount.toLocaleString()}
             </div>
           </div>
