@@ -3,6 +3,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
+import { SidebarProvider, SidebarTrigger } from '@/components/ui/sidebar';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/components/auth/AuthProvider';
 import { 
@@ -18,11 +19,13 @@ import {
 } from 'lucide-react';
 import { TransactionList } from './TransactionList';
 import { AddTransactionDialog } from './AddTransactionDialog';
+import { AddAccountDialog } from './AddAccountDialog';
 import { AccountsOverview } from './AccountsOverview';
 import { ExpenseChart } from './ExpenseChart';
 import { MonthlyTrends } from './MonthlyTrends';
 import BankStatementImport from './BankStatementImport';
 import ExcelExport from './ExcelExport';
+import { AppSidebar } from '../AppSidebar';
 
 interface DashboardStats {
   totalBalance: number;
@@ -41,6 +44,8 @@ export const Dashboard = () => {
   });
   const [loading, setLoading] = useState(true);
   const [showAddTransaction, setShowAddTransaction] = useState(false);
+  const [showAddAccount, setShowAddAccount] = useState(false);
+  const [activeTab, setActiveTab] = useState('overview');
 
   useEffect(() => {
     loadDashboardData();
@@ -94,21 +99,46 @@ export const Dashboard = () => {
 
   const netIncome = stats.monthlyIncome - stats.monthlyExpenses;
 
+  const handleSidebarAction = (action: string) => {
+    switch (action) {
+      case 'add-transaction':
+        setShowAddTransaction(true);
+        break;
+      case 'add-account':
+        setShowAddAccount(true);
+        break;
+      case 'import':
+        setActiveTab('tools');
+        break;
+      case 'export':
+        setActiveTab('tools');
+        break;
+    }
+  };
+
   return (
-    <div className="min-h-screen bg-gradient-to-br from-background via-muted/10 to-primary/5">
-      {/* Header */}
-      <div className="bg-card/80 backdrop-blur border-b">
-        <div className="container mx-auto px-4 py-4">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center space-x-3">
-              <div className="p-2 bg-primary rounded-lg">
-                <Wallet className="h-6 w-6 text-primary-foreground" />
-              </div>
-              <div>
-                <h1 className="text-xl font-bold">PocketLedger</h1>
-                <p className="text-sm text-muted-foreground">Welcome back!</p>
-              </div>
-            </div>
+    <SidebarProvider>
+      <div className="flex min-h-screen w-full">
+        <AppSidebar 
+          onTabChange={setActiveTab}
+          activeTab={activeTab}
+          onActionClick={handleSidebarAction}
+        />
+        <div className="flex-1 min-h-screen bg-gradient-to-br from-background via-muted/10 to-primary/5">
+          {/* Header */}
+          <div className="bg-card/80 backdrop-blur border-b">
+            <div className="container mx-auto px-4 py-4">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center space-x-3">
+                  <SidebarTrigger className="mr-2" />
+                  <div className="p-2 bg-primary rounded-lg">
+                    <Wallet className="h-6 w-6 text-primary-foreground" />
+                  </div>
+                  <div>
+                    <h1 className="text-xl font-bold">PocketLedger</h1>
+                    <p className="text-sm text-muted-foreground">Welcome back!</p>
+                  </div>
+                </div>
             <div className="flex items-center space-x-2">
               <Button
                 onClick={() => setShowAddTransaction(true)}
@@ -139,10 +169,10 @@ export const Dashboard = () => {
               </AlertDialog>
             </div>
           </div>
-        </div>
-      </div>
+            </div>
+          </div>
 
-      <div className="container mx-auto px-4 py-6">
+          <div className="container mx-auto px-4 py-6">
         {/* Stats Cards */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
           <Card className="bg-gradient-to-br from-card to-muted/20 border-0 shadow-lg">
@@ -202,68 +232,53 @@ export const Dashboard = () => {
           </Card>
         </div>
 
-        {/* Main Content Tabs */}
-        <Tabs defaultValue="overview" className="space-y-6">
-          <TabsList className="grid w-full lg:w-fit grid-cols-5">
-            <TabsTrigger value="overview" className="flex items-center space-x-2">
-              <BarChart3 className="h-4 w-4" />
-              <span className="hidden sm:inline">Overview</span>
-            </TabsTrigger>
-            <TabsTrigger value="transactions" className="flex items-center space-x-2">
-              <Wallet className="h-4 w-4" />
-              <span className="hidden sm:inline">Transactions</span>
-            </TabsTrigger>
-            <TabsTrigger value="accounts" className="flex items-center space-x-2">
-              <CreditCard className="h-4 w-4" />
-              <span className="hidden sm:inline">Accounts</span>
-            </TabsTrigger>
-            <TabsTrigger value="analytics" className="flex items-center space-x-2">
-              <PieChart className="h-4 w-4" />
-              <span className="hidden sm:inline">Analytics</span>
-            </TabsTrigger>
-            <TabsTrigger value="tools" className="flex items-center space-x-2">
-              <Plus className="h-4 w-4" />
-              <span className="hidden sm:inline">Tools</span>
-            </TabsTrigger>
-          </TabsList>
+            {/* Main Content */}
+            <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
+              <TabsContent value="overview" className="space-y-6">
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                  <ExpenseChart />
+                  <MonthlyTrends />
+                </div>
+                <TransactionList limit={10} />
+              </TabsContent>
 
-          <TabsContent value="overview" className="space-y-6">
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-              <ExpenseChart />
-              <MonthlyTrends />
-            </div>
-            <TransactionList limit={10} />
-          </TabsContent>
+              <TabsContent value="transactions">
+                <TransactionList />
+              </TabsContent>
 
-          <TabsContent value="transactions">
-            <TransactionList />
-          </TabsContent>
+              <TabsContent value="accounts">
+                <AccountsOverview />
+              </TabsContent>
 
-          <TabsContent value="accounts">
-            <AccountsOverview />
-          </TabsContent>
+              <TabsContent value="analytics" className="space-y-6">
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                  <ExpenseChart />
+                  <MonthlyTrends />
+                </div>
+              </TabsContent>
 
-          <TabsContent value="analytics" className="space-y-6">
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-              <ExpenseChart />
-              <MonthlyTrends />
-            </div>
-          </TabsContent>
+              <TabsContent value="tools" className="space-y-6">
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                  <BankStatementImport onImportComplete={loadDashboardData} />
+                  <ExcelExport />
+                </div>
+              </TabsContent>
+            </Tabs>
+          </div>
 
-          <TabsContent value="tools" className="space-y-6">
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-              <BankStatementImport onImportComplete={loadDashboardData} />
-              <ExcelExport />
-            </div>
-          </TabsContent>
-        </Tabs>
+          <AddTransactionDialog
+            open={showAddTransaction}
+            onOpenChange={setShowAddTransaction}
+            onSuccess={loadDashboardData}
+          />
+
+          <AddAccountDialog
+            open={showAddAccount}
+            onOpenChange={setShowAddAccount}
+            onSuccess={loadDashboardData}
+          />
+        </div>
       </div>
-
-      <AddTransactionDialog
-        open={showAddTransaction}
-        onOpenChange={setShowAddTransaction}
-        onSuccess={loadDashboardData}
-      />
-    </div>
+    </SidebarProvider>
   );
 };

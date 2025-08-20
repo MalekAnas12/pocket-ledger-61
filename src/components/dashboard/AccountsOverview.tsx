@@ -5,6 +5,8 @@ import { Badge } from '@/components/ui/badge';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/components/auth/AuthProvider';
 import { CreditCard, Wallet, PiggyBank, TrendingUp, Plus, Edit } from 'lucide-react';
+import { AddAccountDialog } from './AddAccountDialog';
+import { EditAccountDialog } from './EditAccountDialog';
 
 interface Account {
   id: string;
@@ -47,6 +49,9 @@ export const AccountsOverview = () => {
   const { user } = useAuth();
   const [accounts, setAccounts] = useState<Account[]>([]);
   const [loading, setLoading] = useState(true);
+  const [showAddAccount, setShowAddAccount] = useState(false);
+  const [showEditAccount, setShowEditAccount] = useState(false);
+  const [selectedAccount, setSelectedAccount] = useState<Account | null>(null);
 
   useEffect(() => {
     loadAccounts();
@@ -112,7 +117,11 @@ export const AccountsOverview = () => {
               <Wallet className="h-6 w-6 text-primary" />
               <span>Total Balance</span>
             </div>
-            <Button size="sm" className="bg-primary">
+            <Button 
+              size="sm" 
+              className="bg-primary"
+              onClick={() => setShowAddAccount(true)}
+            >
               <Plus className="h-4 w-4 mr-2" />
               Add Account
             </Button>
@@ -157,7 +166,15 @@ export const AccountsOverview = () => {
                   <div className="text-2xl font-bold">
                     ₹{account.balance.toLocaleString()}
                   </div>
-                  <Button variant="ghost" size="sm" className="mt-1">
+                  <Button 
+                    variant="ghost" 
+                    size="sm" 
+                    className="mt-1"
+                    onClick={() => {
+                      setSelectedAccount(account);
+                      setShowEditAccount(true);
+                    }}
+                  >
                     <Edit className="h-4 w-4 mr-1" />
                     Edit
                   </Button>
@@ -178,13 +195,26 @@ export const AccountsOverview = () => {
             <p className="text-muted-foreground mb-4">
               Add your first account to start tracking your finances.
             </p>
-            <Button>
+            <Button onClick={() => setShowAddAccount(true)}>
               <Plus className="h-4 w-4 mr-2" />
               Add Account
             </Button>
           </CardContent>
         </Card>
       )}
+
+      <AddAccountDialog
+        open={showAddAccount}
+        onOpenChange={setShowAddAccount}
+        onSuccess={loadAccounts}
+      />
+
+      <EditAccountDialog
+        open={showEditAccount}
+        onOpenChange={setShowEditAccount}
+        account={selectedAccount}
+        onSuccess={loadAccounts}
+      />
     </div>
   );
 };
